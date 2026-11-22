@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأطلس التفاعلي للأمراض السريرية</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-soft: #f0f4f8;
+    --surface-hover: #e9eff6;
+    --border: #dde4ec;
+    --text: #182230;
+    --text-muted: #5c6b7e;
+    --accent: #0f766e;
+    --accent-soft: rgba(15, 118, 110, 0.10);
+    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.07);
+    --shadow-modal: 0 24px 60px rgba(15, 23, 42, 0.18);
+
+    --c-cv: #d9485f;
+    --c-resp: #0284c7;
+    --c-gi: #c97a16;
+    --c-gu: #0d9488;
+    --c-msk: #7c5dfa;
+    --c-neuro: #4f46e5;
+    --c-hem: #c83e4d;
+    --c-inf: #c94a86;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 84px;
+    line-height: 1.6;
+  }
+
+  /* Top Airy Header */
+  header {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 18px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .header-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+  }
+
+  h1 {
+    font-size: 1.28rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+
+  .subtitle {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 9px 15px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn:hover {
+    background: var(--surface-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .search-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .search-box {
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .search-box:focus {
+    background: var(--surface);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  /* Main Spacious Container */
+  .container {
+    max-width: 1200px;
+    margin: 26px auto 0;
+    padding: 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* System Section */
+  .system-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .system-card.open {
+    box-shadow: var(--shadow-md);
+  }
+
+  .system-header {
+    padding: 18px 22px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    user-select: none;
+    background: linear-gradient(to left, color-mix(in srgb, var(--sys-color) 7%, #ffffff), #ffffff 65%);
+    border-right: 6px solid var(--sys-color);
+    transition: background 0.2s ease;
+  }
+
+  .system-header:hover {
+    background: linear-gradient(to left, color-mix(in srgb, var(--sys-color) 11%, #ffffff), #f8fafc 70%);
+  }
+
+  .sys-name-ar {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .sys-name-en {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    direction: ltr;
+    display: inline-block;
+    margin-top: 2px;
+  }
+
+  .sys-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .count-pill {
+    background: color-mix(in srgb, var(--sys-color) 12%, #ffffff);
+    color: var(--sys-color);
+    border: 1px solid color-mix(in srgb, var(--sys-color) 25%, transparent);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: transform 0.25s ease;
+  }
+
+  .system-card.open .chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Diseases Grid */
+  .diseases-list {
+    display: none;
+    padding: 20px 22px 24px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .system-card.open .diseases-list {
+    display: grid;
+  }
+
+  /* Disease Card */
+  .disease-node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .disease-node:hover {
+    border-color: color-mix(in srgb, var(--sys-color) 45%, var(--border));
+    transform: translateY(-2px);
+  }
+
+  .disease-node.active {
+    border-color: var(--sys-color);
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--sys-color) 14%, transparent);
+  }
+
+  .disease-btn {
+    padding: 16px 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    text-align: right;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    width: 100%;
+  }
+
+  .dis-ar {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    display: block;
+  }
+
+  .dis-en {
+    font-size: 0.82rem;
+    color: var(--sys-color);
+    font-weight: 600;
+    direction: ltr;
+    display: inline-block;
+    margin-top: 4px;
+  }
+
+  .dis-arrow {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .disease-node.active .dis-arrow {
+    transform: rotate(-90deg);
+    color: var(--sys-color);
+  }
+
+  /* 4 Branch Buttons */
+  .branch-options {
+    display: none;
+    border-top: 1px solid var(--border);
+    background: var(--surface-soft);
+    padding: 14px;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .disease-node.active .branch-options {
+    display: grid;
+    animation: gentleFade 0.2s ease;
+  }
+
+  .opt-btn {
+    padding: 11px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .opt-btn:hover {
+    background: var(--sys-color);
+    color: #ffffff;
+    border-color: var(--sys-color);
+    transform: translateY(-1px);
+  }
+
+  .opt-btn span.en-sub {
+    font-size: 0.72rem;
+    font-weight: 500;
+    opacity: 0.8;
+    direction: ltr;
+  }
+
+  /* Light Floating Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.36);
+    backdrop-filter: blur(6px);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+    animation: gentleFade 0.2s ease;
+  }
+
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface-soft);
+  }
+
+  .modal-cat-badge {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+    color: #ffffff;
+  }
+
+  .modal-title-ar {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .modal-title-en {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    direction: ltr;
+    display: inline-block;
+    margin-top: 2px;
+  }
+
+  .close-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.18s ease;
+  }
+
+  .close-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+  }
+
+  /* Language Switcher */
+  .lang-bar {
+    padding: 10px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+
+  .lang-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+
+  .modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    line-height: 1.8;
+    font-size: 0.96rem;
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .modal-body ul {
+    padding-right: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .modal-body li {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-body li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .ar-block {
+    direction: rtl;
+    text-align: right;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .en-block {
+    direction: ltr;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+    background: var(--surface-soft);
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+
+  .modal-footer {
+    padding: 12px 18px;
+    background: var(--surface-soft);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .foot-tab {
+    padding: 8px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s ease;
+  }
+
+  .foot-tab.current {
+    background: var(--text);
+    color: #ffffff;
+    border-color: var(--text);
+  }
+
+  @keyframes gentleFade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .diseases-list { grid-template-columns: 1fr; padding: 14px; gap: 12px; }
+    .modal-footer { grid-template-columns: repeat(2, 1fr); }
+    header { padding: 16px 14px 14px; }
+    .container { padding: 0 14px; margin-top: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <h1>الأطلس التفاعلي للأمراض السريرية</h1>
+        <div class="subtitle">مساحة قراءة هادئة ومريحة — اختر الجهاز ثم المرض لفتح النافذة العائمة</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" onclick="toggleAllSystems(true)">فتح الكل</button>
+        <button class="btn" onclick="toggleAllSystems(false)">طي الكل</button>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" class="search-box" placeholder="ابحث باسم المرض بالعربي أو الإنكليزي أو بأي عرض أو تحليل..." oninput="filterData()">
+    </div>
+  </div>
+</header>
+
+<div class="container" id="app"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <span class="modal-cat-badge" id="modalBadge">التصنيف</span>
+        <div class="modal-title-ar" id="modalTitleAr">اسم المرض</div>
+        <div class="modal-title-en" id="modalTitleEn">Disease Name</div>
+      </div>
+      <button class="close-btn" onclick="closeModal()" title="إغلاق">✕</button>
+    </div>
+
+    <div class="lang-bar">
+      <button class="lang-btn active" id="btnLangBoth" onclick="setLangMode('both')">عربي + English</button>
+      <button class="lang-btn" id="btnLangAr" onclick="setLangMode('ar')">عربي فقط</button>
+      <button class="lang-btn" id="btnLangEn" onclick="setLangMode('en')">English Only</button>
+    </div>
+
+    <div class="modal-body" id="modalBody"></div>
+
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<script>
+const systemsData = [
+  {
+    id: "cv",
+    nameAr: "أمراض القلب والأوعية الدموية",
+    nameEn: "Cardiovascular System",
+    color: "#f43f5e",
+    diseases: [
+      {
+        ar: "ارتفاع ضغط الدم (فرط الضغط الشرياني)",
+        en: "Hypertension (High Blood Pressure)",
+        overview: [
+          { ar: "ارتفاع مزمن ومستمر في قوة دفع الدم ضد جدران الشرايين (≥ 140/90 mmHg)، ويكون في أكثر من 90% من الحالات أساسياً (غير معروف السبب المباشر) ويُعرف بـ «القاتل الصامت».", en: "Chronic persistent elevation of systemic arterial blood pressure (≥ 140/90 mmHg); primary (essential) in >90% of cases and often called the 'silent killer'." },
+          { ar: "يزيد بشكل كبير من خطر الإصابة بالجلطات القلبية والدماغية وقصور القلب والفشل الكلوي إذا لم يُعالج بانتظام.", en: "Significantly increases the risk of myocardial infarction, stroke, heart failure, and chronic kidney disease if untreated." }
+        ],
+        symptoms: [
+          { ar: "غالباً ما يكون بدون أعراض واضحة في المراحل الاعتيادية ويُكتشف بالصدفة أثناء القياس.", en: "Usually asymptomatic in routine stages and discovered incidentally during blood pressure measurement." },
+          { ar: "عند الارتفاع الملحوظ قد يسبب صداعاً في مؤخرة الرأس (خاصة صباحاً)، دوخة، طنين في الأذن، أو خفقاناً.", en: "When markedly elevated, may cause occipital morning headache, dizziness, tinnitus, or palpitations." }
+        ],
+        vitals: [
+          { ar: "ضغط الدم (BP): مرتفع في قراءتين منفصلتين أو أكثر (≥ 140/90 mmHg).", en: "Blood Pressure (BP): Elevated on two or more separate readings (≥ 140/90 mmHg)." },
+          { ar: "النبض والتنفس والحرارة: طبيعية تماماً في الظروف الاعتيادية.", en: "HR, RR & Temp: Completely normal in routine uncomplicated cases." }
+        ],
+        diagnosis: [
+          { ar: "القياس السريري: قياس ضغط الدم بجهاز الزئبقي أو الإلكتروني المعاير بعد راحة 5 دقائق في جلستين مختلفتين.", en: "Clinical Measurement: Serial blood pressure readings taken after 5 minutes of rest on separate visits." },
+          { ar: "فحوصات تقييم المضاعفات: تخطيط القلب (ECG)، إيكو القلب، وظائف الكلى (RFT)، تحليل البول، والدهون والسكر.", en: "Organ-Damage Workup: ECG, Echocardiography, Renal Function Tests (RFT), Urinalysis, Lipid Profile, and Fasting Glucose." }
+        ]
+      },
+      {
+        ar: "احتشاء العضلة القلبية (الجلطة القلبية)",
+        en: "Myocardial Infarction (Heart Attack / MI)",
+        overview: [
+          { ar: "موت جزء من عضلة القلب نتيجة انسداد مفاجئ وكامل في أحد الشرايين التاجية المغذية للقلب بسبب خثرة دموية فوق تصلب الشرايين.", en: "Necrosis of a portion of the heart muscle caused by an acute, complete blockage of a coronary artery by a thrombus over an atherosclerotic plaque." },
+          { ar: "حالة طبية طارئة تتطلب تدخلاً فورياً لإنقاذ عضلة القلب ومنع المضاعفات.", en: "A medical emergency requiring immediate reperfusion therapy to salvage myocardium." }
+        ],
+        symptoms: [
+          { ar: "ألم ضاغط أو عاصر شديد وسط الصدر خلف عظم القص يستمر لأكثر من 20 دقيقة ولا يزول بالراحة.", en: "Severe crushing or squeezing retrosternal chest pain lasting >20 minutes and unrelieved by rest." },
+          { ar: "انتشار الألم عادةً إلى الذراع اليسرى، الكتف، الرقبة، أو الفك السفلي.", en: "Pain commonly radiates to the left arm, shoulder, neck, or lower jaw." },
+          { ar: "تعرق بارد غزير، غثيان وتقيؤ، وضيق في التنفس.", en: "Profuse cold sweating (diaphoresis), nausea, vomiting, and dyspnea." }
+        ],
+        vitals: [
+          { ar: "النبض (HR): تسارع في ضربات القلب (Tachycardia) نتيجة الألم وتحفيز الجهاز الودي.", en: "Heart Rate (HR): Usually elevated (tachycardia) due to pain and sympathetic activation." },
+          { ar: "ضغط الدم (BP): غالباً يرتفع في بداية النوبة، وقد ينخفض إذا تضررت مساحة واسعة من عضلة القلب.", en: "Blood Pressure (BP): Often elevated initially, or drops if extensive myocardial damage occurs." },
+          { ar: "التنفس والأكسجة: تسارع خفيف في التنفس مع بقاء الأكسجة طبيعية أو انخفاضها بشكل طفيف.", en: "Respiration & SpO₂: Mild tachypnea with normal or mildly reduced SpO₂." }
+        ],
+        diagnosis: [
+          { ar: "تحاليل الدم (Cardiac Biomarkers): ارتفاع إنزيم القلب النوعي (Troponin I / T) بشكل حاد، وارتفاع إنزيم CK-MB.", en: "Blood Tests: Marked elevation of cardiac-specific Troponin I/T and CK-MB." },
+          { ar: "تخطيط القلب (ECG): ارتفاع قطعة ST (ST-elevation) أو انخفاضها مع انقلاب موجة T.", en: "ECG: ST-segment elevation or depression with T-wave inversion." },
+          { ar: "التصوير: إيكو القلب (Echocardiography) وقسطرة الشرايين التاجية (Coronary Angiography).", en: "Imaging: Echocardiography and Coronary Angiography." }
+        ]
+      },
+      {
+        ar: "الذبحة الصدرية المستقرة",
+        en: "Stable Angina",
+        overview: [
+          { ar: "نقص مؤقت في تروية عضلة القلب بالأكسجين نتيجة تضيق جزئي ثابت في الشرايين التاجية، يظهر عند زيادة الجهد دون موت خلايا القلب.", en: "Temporary myocardial ischemia caused by fixed partial narrowing of coronary arteries during exertion, without cell necrosis." },
+          { ar: "تتميز بنمط متوقع؛ تظهر مع نفس مستوى المجهود وتزول سريعاً بالراحة.", en: "Predictable pattern: triggered by exertion or stress and relieved rapidly by rest." }
+        ],
+        symptoms: [
+          { ar: "ثقل أو ضيق أو ألم عاصر خلف عظم القص يظهر مع المجهود البدني أو الانفعال النفسي.", en: "Retrosternal chest heaviness or tightness triggered by physical exertion or emotional stress." },
+          { ar: "يستمر الألم (2–10 دقائق) ويزول تماماً بالراحة أو حبة تحت اللسان (Nitroglycerin).", en: "Lasts 2–10 minutes and resolves completely with rest or sublingual nitroglycerin." },
+          { ar: "قد يمتد الألم بشكل خفيف إلى الذراع اليسرى أو الكتف دون تعرق غزير.", en: "May mildly radiate to the left arm or shoulder without profuse diaphoresis." }
+        ],
+        vitals: [
+          { ar: "أثناء النوبة: ارتفاع مؤقت في معدل النبض (Tachycardia) وضغط الدم.", en: "During attack: Temporary rise in heart rate and blood pressure." },
+          { ar: "بعد الراحة: تعود جميع العلامات الحيوية إلى مستواها الطبيعي تماماً.", en: "After rest: All vital signs return completely to normal baseline." }
+        ],
+        diagnosis: [
+          { ar: "تحاليل الدم: مستوى التروبونين (Troponin) طبيعي ولا يرتفع، مع فحص الدهون والسكر.", en: "Blood Tests: Normal Troponin levels, plus Lipid Profile and blood glucose." },
+          { ar: "تخطيط القلب (ECG): طبيعي أثناء الراحة، ويُظهر انخفاض ST-depression أثناء اختبار الجهد (Stress Test).", en: "ECG: Normal at rest; shows ST-depression during Exercise Stress Testing." },
+          { ar: "التصوير: مفراس الشرايين التاجية (CT Coronary Angiography).", en: "Imaging: CT Coronary Angiography." }
+        ]
+      },
+      {
+        ar: "قصور القلب (فشل القلب)",
+        en: "Heart Failure (HF)",
+        overview: [
+          { ar: "حالة مزمنة تعجز فيها عضلة القلب عن ضخ الدم بكفاءة كافية لتلبية احتياجات الجسم، مما يؤدي لاحتقان السوائل في الرئتين والأطراف.", en: "Chronic condition where the heart muscle fails to pump blood efficiently, causing pulmonary and peripheral fluid congestion." },
+          { ar: "ينتج غالباً عن ارتفاع ضغط الدم المزمن غير المسيطر عليه أو بعد الجلطات القلبية السابقة.", en: "Commonly results from long-standing uncontrolled hypertension or prior myocardial infarction." }
+        ],
+        symptoms: [
+          { ar: "ضيق التنفس عند المجهود وعند الاستلقاء (Orthopnea) مما يجبر المريض على النوم على وسائد مرتفعة.", en: "Exertional dyspnea and orthopnea (shortness of breath when lying flat)." },
+          { ar: "الاستيقاظ ليلاً بسبب ضيق نفس مفاجئ (Paroxysmal nocturnal dyspnea).", en: "Paroxysmal nocturnal dyspnea (waking up gasping for air)." },
+          { ar: "تورم انطباعي في القدمين والكاحلين، تعب مستمر، وسعال جاف أو ببلغم رغوي.", en: "Bilateral pitting ankle edema, fatigue, and dry or frothy cough." }
+        ],
+        vitals: [
+          { ar: "النبض (HR): تسارع في ضربات القلب (Tachycardia) كآلية تعويضية.", en: "Heart Rate (HR): Compensatory tachycardia." },
+          { ar: "التنفس والأكسجة: تسارع التنفس (Tachypnea) وانخفاض متوسط في الأكسجين (SpO₂: 90–94%) عند الاحتقان.", en: "Respiration & SpO₂: Tachypnea and mildly reduced SpO₂ (90–94%) during congestion." },
+          { ar: "ضغط الدم (BP): طبيعي أو مرتفع قليلاً في الحالات المزمنة المستقرة.", en: "Blood Pressure: Normal or mildly elevated in stable chronic stages." }
+        ],
+        diagnosis: [
+          { ar: "التحليل الأهم بالدم: ارتفاع هرمون BNP أو NT-proBNP.", en: "Key Blood Test: Elevated BNP or NT-proBNP." },
+          { ar: "تحاليل روتينية: وظائف الكلى والشوارد (RFT & Electrolytes) وصورة الدم (CBC).", en: "Routine Labs: RFT, electrolytes, and CBC." },
+          { ar: "التصوير: إيكو القلب (Echocardiography) لقياس الكسر القذفي (EF%)، وأشعة الصدر.", en: "Imaging: Echocardiography (to measure EF%) and Chest X-ray." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "resp",
+    nameAr: "أمراض الجهاز التنفسي والحلق",
+    nameEn: "Respiratory System & Throat",
+    color: "#0ea5e9",
+    diseases: [
+      {
+        ar: "التهاب اللوزتين الحاد",
+        en: "Acute Tonsillitis",
+        overview: [
+          { ar: "التهاب حاد يصيب اللوزتين الحنكيتين في مؤخرة الحلق نتيجة عدوى فيروسية أو بكتيرية (أشهرها المكورات العقدية Streptococcus).", en: "Acute inflammation of the palatine tonsils caused by viral or bacterial infection (commonly Group A Streptococcus)." },
+          { ar: "شائع لدى الأطفال والشباب، ويتميز بتركز التورم والبقع القيحية على اللوزتين.", en: "Common in children and young adults, featuring localized tonsillar swelling and exudates." }
+        ],
+        symptoms: [
+          { ar: "ألم شديد في الحلق يزداد بوضوح عند البلع (Odynophagia).", en: "Severe sore throat worsening upon swallowing (odynophagia)." },
+          { ar: "احمرار وتضخم واضح في اللوزتين مع بقع بيضاء أو إفرازات قيحية.", en: "Red, swollen tonsils with white patches or purulent exudates." },
+          { ar: "رائحة فم كريهة، صداع، وتضخم مؤلم في العقد اللمفاوية أسفل الفك.", en: "Halitosis, headache, and tender cervical lymphadenopathy." }
+        ],
+        vitals: [
+          { ar: "الحرارة (Temp): ارتفاع واضح في درجة الحرارة (38.5–39.5°C).", en: "Temperature: Noticeable fever (38.5–39.5°C)." },
+          { ar: "النبض (HR): تسارع النبض متناسب مع الحرارة؛ الضغط والتنفس طبيعيان.", en: "Heart Rate: Fever-related tachycardia; normal BP and RR." }
+        ],
+        diagnosis: [
+          { ar: "الفحص السريري: معاينة الحلق مباشرة بالضوء وخافض اللسان.", en: "Clinical Exam: Direct throat inspection." },
+          { ar: "التحاليل: اختبار البكتيريا السريع (Rapid Strep Test) أو مسحة الحلق، وصورة الدم (CBC) و CRP.", en: "Labs: Rapid Strep Test or Throat Swab Culture, CBC, and CRP." }
+        ]
+      },
+      {
+        ar: "التهاب الحنجرة الحاد",
+        en: "Acute Laryngitis",
+        overview: [
+          { ar: "التهاب وتورم في الغشاء المخاطي للحنجرة والأحبال الصوتية بسبب عدوى فيروسية علوية أو إجهاد الصوت.", en: "Inflammation and edema of the laryngeal mucosa and vocal cords due to viral URI or vocal strain." },
+          { ar: "حالة بسيطة ومحدودة ذاتياً تتحسن خلال أسبوع مع إراحة الصوت.", en: "Usually mild and self-limiting, resolving within a week with voice rest." }
+        ],
+        symptoms: [
+          { ar: "بحة واضحة في الصوت (Hoarseness) وقد يصل لفقدان الصوت مؤقتاً (Aphonia).", en: "Prominent hoarseness or temporary loss of voice (aphonia)." },
+          { ar: "سعال جاف متكرر مع شعور بدغدغة أو جفاف في الحلق وألم خفيف عند الكلام.", en: "Dry hacking cough, throat tickling, and mild discomfort when speaking." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية في الغالب (حرارة طبيعية أو ارتفاع طفيف < 37.8°C).", en: "Vital Signs: Mostly normal (normal temperature or mild low-grade fever < 37.8°C)." }
+        ],
+        diagnosis: [
+          { ar: "التشخيص الأساسي: سريري بالكامل دون الحاجة لتحاليل روتينية.", en: "Primary Diagnosis: Clinical diagnosis based on voice changes." },
+          { ar: "تنظير الحنجرة (Laryngoscopy): يُجرى فقط إذا استمرت البحة أكثر من أسبوعين.", en: "Laryngoscopy: Performed only if hoarseness persists >2 weeks." }
+        ]
+      },
+      {
+        ar: "التهاب البلعوم الحاد",
+        en: "Acute Pharyngitis",
+        overview: [
+          { ar: "التهاب يصيب البلعوم (الجدار الخلفي للحلق)، ويكون فيروسي المنشأ في أكثر من 80% من الحالات الاعتيادية ضمن نزلات البرد.", en: "Inflammation of the posterior pharyngeal wall; viral in >80% of typical cases." },
+          { ar: "يتميز باحمرار الحلق وألم البلع دون قيح واضح على اللوزتين.", en: "Characterized by pharyngeal erythema and sore throat without tonsillar exudates." }
+        ],
+        symptoms: [
+          { ar: "خشونة وحرقة وألم في الحلق يزداد عند البلع مع احمرار الجدار الخلفي للبلعوم.", en: "Scratchy, burning sore throat with posterior pharyngeal erythema." },
+          { ar: "يرافقه غالباً سيلان الأنف (Rhinorrhea)، عطاس، وسعال خفيف.", en: "Commonly accompanied by rhinorrhea, sneezing, and mild cough." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع طفيف إلى متوسط في الحرارة (37.8–38.5°C) مع تسارع بسيط في النبض.", en: "Temp & HR: Mild-to-moderate fever (37.8–38.5°C) with mild tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "الفحص السريري: فحص البلعوم بالضوء، ومسحة البلعوم (Throat Swab / RADT) عند الشك بعدوى بكتيرية.", en: "Clinical Exam & Labs: Throat inspection, and Throat Swab / RADT if bacterial infection is suspected." }
+        ]
+      },
+      {
+        ar: "الربو القصبي",
+        en: "Bronchial Asthma",
+        overview: [
+          { ar: "مرض التهابي مزمن في المجاري التنفسية يؤدي إلى فرط تحسس القصبات وتضيقها القابل للانعكاس عند التعرض لمثيرات كالغبار أو الهواء البارد.", en: "Chronic inflammatory airway disease causing bronchial hyperresponsiveness and reversible airway narrowing upon trigger exposure." },
+          { ar: "تختفي الأعراض بسرعة عند استخدام البخاخ الموسع للقصبات ويعيش المريض طبيعياً بين النوبات.", en: "Symptoms rapidly reverse with bronchodilators and patients are normal between attacks." }
+        ],
+        symptoms: [
+          { ar: "نوبات متكررة من ضيق التنفس خاصة ليلاً أو في الصباح الباكر.", en: "Recurrent episodes of dyspnea, especially at night or early morning." },
+          { ar: "صوت صفير مسموع عند الزفير (Expiratory wheezing) وسعال جاف أو ببلغم لزج قليل.", en: "Audible expiratory wheezing and dry or scant sticky sputum cough." }
+        ],
+        vitals: [
+          { ar: "أثناء النوبة الاعتيادية: تسارع التنفس (22–28/min) وتسارع النبض، والأكسجة (SpO₂: 92–96%).", en: "During attack: Tachypnea (22–28/min), tachycardia, and SpO₂ 92–96%." },
+          { ar: "بين النوبات: جميع العلامات الحيوية طبيعية تماماً.", en: "Between attacks: All vital signs are completely normal." }
+        ],
+        diagnosis: [
+          { ar: "فحص وظائف الرئة (الأهم): جهاز مقياس التنفس (Spirometry) يُظهر انسداداً يتحسن بعد موسع القصبات.", en: "Pulmonary Function Test: Spirometry showing reversible airflow obstruction." },
+          { ar: "تحاليل مساعدة: مقياس ذروة التدفق (Peak Flow)، صورة الدم (ارتفاع Eosinophils)، ومستوى Total IgE.", en: "Supporting Tests: Peak Flow meter, CBC (eosinophilia), and Total IgE." }
+        ]
+      },
+      {
+        ar: "التهاب القصبات الحاد",
+        en: "Acute Bronchitis",
+        overview: [
+          { ar: "التهاب مؤقت في بطانة القصبات الهوائية الرئيسية ينتج غالباً عن عدوى فيروسية بعد نزلة برد، دون وصول الالتهاب لأنسجة الرئة.", en: "Temporary viral inflammation of the large bronchial airways following a cold, sparing lung parenchyma." },
+          { ar: "يتميز بسعال مستمر من أسبوع إلى 3 أسابيع حتى بعد زوال بقية أعراض البرد.", en: "Characterized by a cough lasting 1–3 weeks." }
+        ],
+        symptoms: [
+          { ar: "سعال مستمر يبدأ جافاً ثم يصبح مصحوباً ببلغم أبيض أو أصفر.", en: "Persistent cough starting dry then becoming productive of clear or yellowish sputum." },
+          { ar: "حرقة خفيفة خلف عظم القص تزداد مع السعال وصفير خفيف.", en: "Mild retrosternal soreness aggravated by coughing and mild wheezing." }
+        ],
+        vitals: [
+          { ar: "الحرارة والأكسجة: حرارة طبيعية أو ارتفاع طفيف (< 38°C)، ومعدل التنفس والأكسجين (SpO₂ ≥ 95%) طبيعيان.", en: "Temp & SpO₂: Normal or low-grade fever (< 38°C); normal RR and SpO₂ (≥ 95%)." }
+        ],
+        diagnosis: [
+          { ar: "التشخيص الأساسي: سريري، وتكون أشعة الصدر (Chest X-ray) طبيعية تماماً (تُطلب فقط لاستبعاد ذات الرئة).", en: "Primary Diagnosis: Clinical; Chest X-ray is normal (ordered only to exclude pneumonia)." }
+        ]
+      },
+      {
+        ar: "ذات الرئة (الالتهاب الرئوي المعدي)",
+        en: "Pneumonia",
+        overview: [
+          { ar: "عدوى حادة تصيب الحويصلات الهوائية داخل الرئة (بكتيرية غالباً مثل Streptococcus pneumoniae أو فيروسية) فتُملأ بالسوائل والقيح.", en: "Acute infection of the lung alveoli (commonly bacterial or viral) filling them with fluid and pus." },
+          { ar: "تسبب حمى مرتفعة وإعياءً عاماً واضحاً وتغيرات واضحة في أشعة الصدر.", en: "Causes high fever, systemic illness, and clear Chest X-ray consolidation." }
+        ],
+        symptoms: [
+          { ar: "سعال مصحوب ببلغم سميك أصفر أو أخضر أو بلون الصدأ.", en: "Productive cough with thick yellow, green, or rust-colored sputum." },
+          { ar: "حمى عالية مفاجئة مع قشعريرة، وألم حاد في جانب الصدر يزداد مع التنفس العميق (Pleuritic chest pain).", en: "Sudden high fever with chills, and sharp pleuritic chest pain." }
+        ],
+        vitals: [
+          { ar: "الحرارة والتنفس والأكسجة: حرارة مرتفعة (38.5–40°C)، تسارع التنفس (> 22/min)، وانخفاض الأكسجين (SpO₂ < 94%) مع تسارع النبض.", en: "Temp, RR & SpO₂: High fever (38.5–40°C), tachypnea (> 22/min), SpO₂ < 94%, and tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "التصوير: أشعة الصدر (Chest X-ray) تُظهر تكثفاً رئوياً (Consolidation).", en: "Imaging: Chest X-ray demonstrating lung consolidation." },
+          { ar: "التحاليل: صورة الدم (CBC: ارتفاع WBC و Neutrophils)، ارتفاع CRP و Procalcitonin، وزرع البلغم.", en: "Labs: CBC (neutrophilia), elevated CRP and Procalcitonin, and Sputum Culture." }
+        ]
+      },
+      {
+        ar: "الالتهاب الرئوي غير المعدي",
+        en: "Pneumonitis",
+        overview: [
+          { ar: "تهيج والتهاب في جدران الحويصلات الهوائية غير ناتج عن عدوى، بل بسبب استنشاق مواد مهيجة (أبخرة كيميائية، غبار الطيور) أو بعض الأدوية.", en: "Non-infectious alveolar inflammation triggered by inhaling irritants (fumes, organic dust) or certain medications." }
+        ],
+        symptoms: [
+          { ar: "ضيق تنفس تدريجي يزداد مع الحركة، وسعال جاف مستمر بدون بلغم، وإرهاق عام.", en: "Progressive exertional dyspnea, persistent dry cough without sputum, and fatigue." }
+        ],
+        vitals: [
+          { ar: "التنفس والأكسجة: تسارع التنفس وانخفاض ملحوظ في الأكسجين (Hypoxemia) خاصة عند المشي.", en: "Respiration & SpO₂: Tachypnea and exertional hypoxemia." }
+        ],
+        diagnosis: [
+          { ar: "التصوير ووظائف الرئة: مفراس الصدر عالي الدقة (HRCT Chest) يُظهر تغيرات الزجاج المغشى، ووظائف الرئة تُظهر نمطاً تقييدياً.", en: "Imaging & PFT: HRCT Chest showing ground-glass opacities, and restrictive pattern on Spirometry." }
+        ]
+      },
+      {
+        ar: "السل الرئوي (التدرن)",
+        en: "Pulmonary Tuberculosis (TB)",
+        overview: [
+          { ar: "عدوى بكتيرية مزمنة تسببها عصيات كوخ (Mycobacterium tuberculosis)، تنتقل عبر الرذاذ التنفسي وتستقر غالباً في القمم العليا للرئتين.", en: "Chronic bacterial infection caused by Mycobacterium tuberculosis, transmitted via airborne droplets and typically affecting the upper lung lobes." }
+        ],
+        symptoms: [
+          { ar: "سعال مزمن لأكثر من 3 أسابيع مصحوب ببلغم وقد يختلط بالدم (Hemoptysis).", en: "Chronic cough >3 weeks with sputum, sometimes blood-streaked (hemoptysis)." },
+          { ar: "تعرق ليلي غزير، حمى خفيفة مساءً، وفقدان واضح في الشهية والوزن.", en: "Drenching night sweats, low-grade evening fever, anorexia, and weight loss." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع طفيف في الحرارة مساءً (37.8–38.3°C) وتسارع خفيف في النبض.", en: "Temp & HR: Low-grade evening fever (37.8–38.3°C) and mild tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "فحص البلغم: صبغة AFB Sputum Smear واختبار الجينات السريع (GeneXpert MTB/RIF).", en: "Sputum Tests: AFB smear and GeneXpert MTB/RIF." },
+          { ar: "التصوير وفحوصات المناعة: أشعة الصدر (ارتشاحات أو تجاويف في قمة الرئة)، واختبار الجلد (Mantoux) أو QuantiFERON.", en: "Imaging & Immunology: Chest X-ray (upper lobe infiltrates/cavities), Mantoux skin test, or QuantiFERON." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "gi",
+    nameAr: "أمراض الجهاز الهضمي والكبد",
+    nameEn: "Gastrointestinal & Hepatic System",
+    color: "#f59e0b",
+    diseases: [
+      {
+        ar: "جرثومة المعدة (الملوية البوابية)",
+        en: "Helicobacter pylori (H. pylori) Gastritis",
+        overview: [
+          { ar: "بكتيريا حلزونية تعيش في الطبقة المخاطية للمعدة وتضعف حمايتها ضد الحمض، مما يسبب التهاب المعدة المزمن أو قرحة الاثني عشر والمعدة.", en: "Spiral bacterium colonizing the gastric mucosa and weakening acid defense, causing chronic gastritis or peptic ulcers." }
+        ],
+        symptoms: [
+          { ar: "ألم حارق أو قارض في أعلى البطن (فم المعدة) يزداد عند الجوع أو ليلاً ويخف مؤقتاً بالأكل.", en: "Burning or gnawing epigastric pain worsening when hungry or at night and temporarily relieved by food." },
+          { ar: "انتفاخ في البطن، كثرة التجشؤ، غثيان خفيف، وشعور بالامتلاء السريع.", en: "Bloating, frequent belching, mild nausea, and early satiety." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية تماماً ومستقرة.", en: "Vital Signs: Completely normal and stable." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل الدقيقة: فحص مستضد الجرثومة في البراز (H. pylori Stool Antigen) أو اختبار النفس باليوريا (Urea Breath Test).", en: "Non-invasive Labs: H. pylori Stool Antigen Test or Urea Breath Test." },
+          { ar: "ناظور المعدة (OGD): عند وجود أعراض منذرة مع أخذ خزعة للفحص السريع (Rapid Urease Test).", en: "Upper Endoscopy (OGD): With biopsy for Rapid Urease Test if alarm features are present." }
+        ]
+      },
+      {
+        ar: "التهاب الكبد الفيروسي",
+        en: "Viral Hepatitis (HAV, HBV, HCV)",
+        overview: [
+          { ar: "التهاب يصيب خلايا الكبد بسبب فيروسات الكبد (أشهرها A الذي ينتقل بالطعام الملوث، و B و C اللذان ينتقلان عبر الدم وسوائل الجسم).", en: "Inflammation of hepatocytes caused by hepatitis viruses (HAV via fecal-oral route; HBV and HCV via blood and body fluids)." },
+          { ar: "يسبب أذية في خلايا الكبد وارتفاعاً حاداً في إنزيمات الكبد واصفراراً في العينين والجلد.", en: "Causes hepatocellular injury, marked transaminase elevation, and jaundice." }
+        ],
+        symptoms: [
+          { ar: "اصفرار بياض العين والجلد (Jaundice) وتغير لون البول إلى الداكن الشبيه بالشاي (Dark urine) وبراز فاتح اللون.", en: "Jaundice (yellow sclera/skin), dark tea-colored urine, and pale clay-colored stools." },
+          { ar: "إرهاق شديد، فقدان الشهية (Anorexia)، غثيان وتقيؤ، وألم أو ثقل في الجانب الأيمن العلوي من البطن.", en: "Profound fatigue, anorexia, nausea, vomiting, and right upper quadrant abdominal discomfort." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع طفيف في الحرارة (Low-grade fever) في المرحلة الأولية؛ الضغط والتنفس طبيعيان.", en: "Temp & HR: Mild low-grade fever in the prodromal phase; normal BP and RR." }
+        ],
+        diagnosis: [
+          { ar: "تحاليل وظائف الكبد (LFTs): ارتفاع كبير جداً في إنزيمات الكبد (ALT & AST) وارتفاع البيليروبين (Total & Direct Bilirubin).", en: "Liver Function Tests: Markedly elevated ALT and AST, along with elevated total and direct bilirubin." },
+          { ar: "الفحوصات الفيروسية (Viral Serology / PCR): Anti-HAV IgM، HBsAg، Anti-HCV، وفحص PCR للحمل الفيروسي.", en: "Viral Serology & PCR: Anti-HAV IgM, HBsAg, Anti-HCV, and quantitative viral PCR." }
+        ]
+      },
+      {
+        ar: "تشمع الكبد",
+        en: "Liver Cirrhosis",
+        overview: [
+          { ar: "تليف وتندب متقدم ومزمن في أنسجة الكبد السليمة نتيجة التهاب الكبد الفيروسي المزمن أو الكبد الدهني، مما يعيق وظائف الكبد وتدفق الدم عبره.", en: "Advanced chronic scarring (fibrosis) of healthy liver tissue due to chronic viral hepatitis or fatty liver, impairing liver function and portal flow." }
+        ],
+        symptoms: [
+          { ar: "إرهاق وضعف عام مزمن، فقدان الشهية، واصفرار العين والجلد (Jaundice) مع حكة جلدية.", en: "Chronic fatigue, anorexia, jaundice, and pruritus." },
+          { ar: "انتفاخ البطن بسبب تجمع السوائل (Ascites)، تورم الساقين، وسهولة ظهور الكدمات أو نزف اللثة.", en: "Abdominal swelling (ascites), leg edema, and easy bruising or gum bleeding." }
+        ],
+        vitals: [
+          { ar: "ضغط الدم (BP): يميل للانخفاض (Low-normal) نتيجة توسع الأوعية المحيطي؛ النبض والحرارة طبيعيان.", en: "Blood Pressure: Tends to be low-normal; HR and Temp are normal." }
+        ],
+        diagnosis: [
+          { ar: "تحاليل الكبد والتخثر: ارتفاع Bilirubin و AST/ALT، انخفاض الألبومين (Hypoalbuminemia)، تطاول PT/INR، وانخفاض الصفائح.", en: "Labs: Elevated bilirubin & AST/ALT, hypoalbuminemia, prolonged PT/INR, and thrombocytopenia." },
+          { ar: "التصوير: سونار البطن (Abdominal Ultrasound) وجهاز FibroScan.", en: "Imaging: Abdominal Ultrasound and FibroScan." }
+        ]
+      },
+      {
+        ar: "انسداد الأمعاء",
+        en: "Intestinal Obstruction",
+        overview: [
+          { ar: "توقف ميكانيكي يمنع مرور الطعام والسوائل والغازات عبر الأمعاء الدقيقة أو الغليظة، وأكثر أسبابه شيوعاً الالتصاقات بعد العمليات الجراحية السابقة أو الفتوق.", en: "Mechanical blockage preventing intestinal transit, most commonly caused by post-operative adhesions or hernias." }
+        ],
+        symptoms: [
+          { ar: "ألم ومغص شديد في البطن على شكل نوبات متكررة (Colicky abdominal pain) مع انتفاخ واضح في البطن.", en: "Severe colicky abdominal pain occurring in waves with marked abdominal distension." },
+          { ar: "تقيؤ متكرر وتوقف خروج البراز والغازات (Absolute constipation).", en: "Repeated vomiting and inability to pass stool or flatus." }
+        ],
+        vitals: [
+          { ar: "النبض والضغط: تسارع النبض (Tachycardia) وانخفاض الضغط (Hypotension) نتيجة الجفاف؛ ارتفاع الحرارة يُنذر باختناق الأمعاء.", en: "HR & BP: Tachycardia and hypotension due to dehydration; fever warns of strangulation." }
+        ],
+        diagnosis: [
+          { ar: "التصوير: أشعة البطن بوضعية الوقوف (Erect Abdominal X-ray) تُظهر مستويات السوائل والغازات، ومفراس البطن (CT Abdomen).", en: "Imaging: Erect Abdominal X-ray (air-fluid levels) and CT Abdomen." },
+          { ar: "تحاليل الدم: الشوارد (Electrolytes)، وظائف الكلى (RFT)، وصورة الدم (CBC).", en: "Blood Tests: Electrolytes, RFT, and CBC." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "gu",
+    nameAr: "أمراض الجهاز البولي والتناسلي",
+    nameEn: "Urinary & Reproductive System",
+    color: "#10b981",
+    diseases: [
+      {
+        ar: "حصى الكلية والحالب",
+        en: "Renal & Ureteric Stone (Calculi)",
+        overview: [
+          { ar: "ترسبات بلورية صلبة (أشهرها أوكسالات الكالسيوم) تتكون داخل الكلية وتسبب مغصاً كلوياً حاداً عند نزولها في الحالب.", en: "Hard crystalline mineral deposits (most commonly calcium oxalate) formed in the kidney causing severe renal colic when passing down the ureter." }
+        ],
+        symptoms: [
+          { ar: "ألم مفاجئ حاد في الخاصرة (Renal colic) ينتقل تدريجياً نحو أسفل البطن والفخذ مع حركة الحصوة.", en: "Sudden severe flank pain radiating toward the lower abdomen and groin." },
+          { ar: "بول وردي أو أحمر بسبب الدم (Hematuria)، غثيان وتقيؤ، وحرقة عند اقتراب الحصوة من المثانة.", en: "Hematuria, nausea/vomiting, and dysuria when nearing the bladder." }
+        ],
+        vitals: [
+          { ar: "النبض والضغط: تسارع النبض وارتفاع مؤقت في الضغط بسبب الألم؛ الحرارة طبيعية.", en: "HR & BP: Tachycardia and transient pain-induced hypertension; normal temperature." }
+        ],
+        diagnosis: [
+          { ar: "التصوير: مفراس البطن والحوض بدون صبغة (Non-contrast CT KUB) وسونار الكلى.", en: "Imaging: Non-contrast CT KUB and Renal Ultrasound." },
+          { ar: "التحاليل: تحليل البول العام (GUE: وجود RBCs وأملاح) ووظائف الكلى (RFT).", en: "Labs: General Urine Examination (GUE) and RFT." }
+        ]
+      },
+      {
+        ar: "التهاب المثانة البسيط",
+        en: "Acute Cystitis",
+        overview: [
+          { ar: "عدوى بكتيرية سطحية تصيب بطانة المثانة البولية (تسببها بكتيريا E. coli في أكثر من 80% من الحالات)، شائعة جداً لدى النساء.", en: "Superficial bacterial infection of the bladder mucosa (E. coli in >80% of cases), very common in women." }
+        ],
+        symptoms: [
+          { ar: "حرقة وألم لاذع أثناء التبول (Dysuria)، كثرة التبول (Frequency)، وشعور ملحّ للتبول (Urgency).", en: "Dysuria, urinary frequency, and urgency." },
+          { ar: "ثقل أو ألم خفيف أسفل البطن فوق العانة مع بول عكر.", en: "Suprapubic discomfort with cloudy urine." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية بالكامل (لا يسبب حمى).", en: "Vital Signs: Completely normal (afebrile)." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل: تحليل البول العام (GUE: خلايا قيحية Pus cells ونتريت Nitrites) وزرع البول (Urine Culture).", en: "Labs: GUE (pyuria and nitrites) and Urine Culture." }
+        ]
+      },
+      {
+        ar: "التهاب المسالك البولية (العلوي / الكلوي)",
+        en: "Urinary Tract Infection (UTI / Pyelonephritis)",
+        overview: [
+          { ar: "صعود العدوى البكتيرية من المثانة عبر الحالب لتصل إلى حوض ونسيج الكلية، مما يسبب التهاباً مصحوباً بحمى وألم في الخاصرة.", en: "Ascending bacterial infection from the bladder to the renal pelvis and parenchyma, causing fever and flank pain." }
+        ],
+        symptoms: [
+          { ar: "أعراض التهاب المثانة يتبعها ألم مستمر في الخاصرة أو أسفل الظهر (Flank pain).", en: "Cystitis symptoms followed by constant flank or back pain." },
+          { ar: "حمى مرتفعة وقشعريرة ورجفة، غثيان وتقيؤ وإرهاق عام.", en: "High fever, chills, rigors, nausea, and malaise." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع واضح في الحرارة (38.5–39.5°C) مع تسارع النبض (Tachycardia).", en: "Temp & HR: High fever (38.5–39.5°C) with tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل والتصوير: GUE، زرع البول (Urine Culture)، صورة الدم (CBC: Leukocytosis)، CRP، وسونار الكلى.", en: "Labs & Imaging: GUE, Urine Culture, CBC, CRP, and Renal Ultrasound." }
+        ]
+      },
+      {
+        ar: "التهاب البروستات",
+        en: "Prostatitis",
+        overview: [
+          { ar: "التهاب وتورم يصيب غدة البروستات لدى الرجال، قد يكون بكتيرياً حاداً أو مزمناً، ويتميز بألم في منطقة العجان واضطرابات التبول.", en: "Inflammation of the prostate gland in men (acute bacterial or chronic), featuring perineal pain and urinary symptoms." }
+        ],
+        symptoms: [
+          { ar: "حرقة وصعوبة في التبول، وألم مزعج في منطقة العجان (بين كيس الصفن والشرج) وأسفل الظهر.", en: "Dysuria, difficulty voiding, and aching perineal and lower back pain." },
+          { ar: "ألم عند القذف، وحمى وقشعريرة في الالتهاب البكتيري الحاد.", en: "Painful ejaculation, plus fever and chills in acute bacterial prostatitis." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع الحرارة وتسارع النبض في النوع الحاد؛ طبيعية في المزمن.", en: "Temp & HR: Fever and tachycardia in acute type; normal in chronic type." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل والفحص: تحليل وزرع البول، CBC، تحليل PSA (قد يرتفع مؤقتاً)، وفحص المستقيم السريري (DRE).", en: "Labs & Exam: Urinalysis, Urine Culture, CBC, transient PSA rise, and gentle DRE." }
+        ]
+      },
+      {
+        ar: "تضخم البروستات الحميد",
+        en: "Benign Prostatic Hyperplasia (BPH)",
+        overview: [
+          { ar: "تضخم غير سرطاني شائع في غدة البروستات يحدث تدريجياً بعد سن الخمسين ويضغط على مجرى البول.", en: "Common non-cancerous enlargement of the prostate developing with age (>50 years) that compresses the urethra." }
+        ],
+        symptoms: [
+          { ar: "ضعف تيار البول وتقطعه، صعوبة بدء التبول (Hesitancy)، الاستيقاظ المتكرر ليلاً للتبول (Nocturia)، وتنقيط البول.", en: "Weak stream, urinary hesitancy, nocturia, and post-void dribbling." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية ومستقرة تماماً.", en: "Vital Signs: Completely normal and stable." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل والتصوير: تحليل PSA لاستبعاد الورم، وظائف الكلى (RFT)، وسونار البروستات وحساب البول المتبقي (PVR).", en: "Labs & Imaging: Serum PSA, RFT, and Pelvic/Prostate Ultrasound with Post-Void Residual (PVR)." }
+        ]
+      },
+      {
+        ar: "مرض السيلان (والأمراض المنقولة جنسياً)",
+        en: "Gonorrhea (Venereal Diseases)",
+        overview: [
+          { ar: "عدوى بكتيرية تنتقل جنسياً تسببها بكتيريا النيسرية البنية (Neisseria gonorrhoeae)، تصيب الإحليل وعنق الرحم.", en: "Sexually transmitted bacterial infection caused by Neisseria gonorrhoeae affecting the urethra and cervix." }
+        ],
+        symptoms: [
+          { ar: "عند الرجال: حرقة شديدة أثناء التبول مع خروج إفرازات قيحية صفراء أو مخضرة من الإحليل.", en: "In Men: Severe dysuria with thick yellow or greenish purulent urethral discharge." },
+          { ar: "عند النساء: غالباً خفيفة أو صامتة، أو إفرازات مهبلية وحرقة بول وألم أسفل البطن.", en: "In Women: Often asymptomatic/mild, or vaginal discharge, dysuria, and lower abdominal pain." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية في العدوى الموضعية الاعتيادية.", en: "Vital Signs: Normal in localized uncomplicated infection." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل: فحص تضخيم الحمض النووي (NAAT / PCR) على البول أو المسحة، وصبغة غرام (Gram Stain).", en: "Labs: NAAT / PCR on urine or swab, and Gram stain." }
+        ]
+      },
+      {
+        ar: "تضخم الرحم (الألياف الرحمية / العضال الغدي)",
+        en: "Uterine Enlargement (Hysteromegaly)",
+        overview: [
+          { ar: "زيادة في الحجم الكلي للرحم عن معدله الطبيعي، وأكثر أسبابه شيوعاً الأورام الليفية الحميدة (Fibroids) أو العضال الغدي (Adenomyosis).", en: "Increase in overall uterine size, most commonly caused by benign fibroids or adenomyosis." }
+        ],
+        symptoms: [
+          { ar: "غزارة وطول مدة الدورة الشهرية (Menorrhagia)، ثقل في أسفل البطن، وكثرة التبول بسبب ضغط الرحم على المثانة.", en: "Menorrhagia, lower abdominal heaviness, and urinary frequency due to bladder compression." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية (قد يظهر تسارع خفيف في النبض إذا حدث فقر دم من النزف).", en: "Vital Signs: Normal (mild tachycardia if anemic from heavy bleeding)." }
+        ],
+        diagnosis: [
+          { ar: "التصوير والتحاليل: سونار الحوض والرحم (Pelvic Ultrasound)، اختبار الحمل (β-hCG)، وصورة الدم (CBC).", en: "Imaging & Labs: Pelvic Ultrasound, pregnancy test (β-hCG), and CBC." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "neuro",
+    nameAr: "أمراض الجهاز العصبي",
+    nameEn: "Nervous System",
+    color: "#6366f1",
+    diseases: [
+      {
+        ar: "الجلطة الدماغية (السكتة الدماغية)",
+        en: "Stroke (Cerebrovascular Accident / CVA)",
+        overview: [
+          { ar: "تلف مفاجئ في خلايا الدماغ نتيجة انقطاع التروية الدموية (جلطة إقفارية بسبب انسداد شريان دماغي في 85% من الحالات، أو نزف دماغي).", en: "Sudden focal neurological deficit caused by interrupted cerebral blood supply (ischemic in 85% of cases, or hemorrhagic)." },
+          { ar: "حالة طارئة جداً تعتمد على الوقت؛ التدخل السريع في الساعات الأولى ينقذ أنسجة الدماغ من التلف الدائم.", en: "Time-critical medical emergency; rapid intervention within the first hours salvages brain tissue." }
+        ],
+        symptoms: [
+          { ar: "ضعف أو شلل مفاجئ في نصف الجسم (الوجه والذراع والساق في جهة واحدة - Hemiplegia).", en: "Sudden unilateral weakness or paralysis of the face, arm, and leg (hemiparesis/hemiplegia)." },
+          { ar: "تلعثم وصعوبة مفاجئة في الكلام أو فهم الحديث (Dysarthria / Aphasia) وانحراف زاوية الفم.", en: "Sudden slurred speech or difficulty speaking/understanding (dysarthria/aphasia) and facial droop." },
+          { ar: "اختلال مفاجئ في التوازن أو الرؤية، أو صداع شديد مفاجئ (خاصة في النوع النزفي).", en: "Sudden loss of balance or vision, or sudden severe headache (especially in hemorrhagic stroke)." }
+        ],
+        vitals: [
+          { ar: "ضغط الدم (BP): غالباً ما يكون مرتفعاً بشكل ملحوظ كاستجابة وقائية للحفاظ على تروية الدماغ.", en: "Blood Pressure (BP): Frequently markedly elevated to maintain cerebral perfusion." },
+          { ar: "النبض والتنفس: طبيعيان أو غير منتظمين (في حال وجود رجفان أذيني Atrial Fibrillation مسبب للجلطة).", en: "HR & RR: Normal or irregularly irregular pulse if caused by atrial fibrillation." }
+        ],
+        diagnosis: [
+          { ar: "التصوير الفوري (الأساسي): مفراس الدماغ بدون صبغة (Non-contrast Brain CT) فوراً للتمييز بين الجلطة الإقفارية والنزفية.", en: "Immediate Imaging (Primary): Non-contrast Brain CT immediately to differentiate ischemic vs. hemorrhagic stroke." },
+          { ar: "فحوصات متقدمة ومخبرية: رنين الدماغ (Brain MRI)، تخطيط القلب (ECG)، سكر الدم، وصورة الدم والتخثر.", en: "Further Workup: Brain MRI, ECG, blood glucose, CBC, and coagulation profile." }
+        ]
+      },
+      {
+        ar: "الصرع (اضطراب النوبات التشنجية)",
+        en: "Epilepsy (Seizure Disorder)",
+        overview: [
+          { ar: "اضطراب عصبي مزمن يتميز بحدوث نوبات متكررة وغير مستفزة من النشاط الكهربائي الزائد والمفاجئ في خلايا الدماغ.", en: "Chronic neurological disorder characterized by recurrent, unprovoked seizures resulting from sudden abnormal electrical discharges in brain neurons." },
+          { ar: "يعيش المريض حياة طبيعية تماماً بين النوبات مع الالتزام بالعلاج الدوائي المنتظم.", en: "Patients function completely normally between seizures when adherent to anti-seizure therapy." }
+        ],
+        symptoms: [
+          { ar: "فقدان مفاجئ للوعي مع سقوط وتيبس في عضلات الجسم (Tonic phase) يتبعه اهتزازات وحركات ارتجاجية لا إرادية في الأطراف (Clonic phase).", en: "Sudden loss of consciousness with generalized muscle stiffening (tonic) followed by rhythmic jerking movements (clonic)." },
+          { ar: "خروج رغوة من الفم، عض اللسان، أو فقدان السيطرة على التبول أثناء النوبة.", en: "Frothing at the mouth, tongue biting, or urinary incontinence during the seizure." },
+          { ar: "فترة ما بعد النوبة (Post-ictal state): نعاس شديد، تشوش ذهني، وصداع وتعب عضلي لبضع دقائق أو ساعات.", en: "Post-ictal state: Drowsiness, confusion, headache, and muscle soreness lasting minutes to hours." }
+        ],
+        vitals: [
+          { ar: "أثناء النوبة: تسارع النبض (Tachycardia)، ارتفاع مؤقت في الضغط، واضطراب سطحي في التنفس.", en: "During seizure: Tachycardia, transient hypertension, and irregular shallow breathing." },
+          { ar: "بعد انتهاء النوبة: تعود جميع العلامات الحيوية إلى الطبيعي تدريجياً.", en: "After seizure: All vital signs gradually return to normal baseline." }
+        ],
+        diagnosis: [
+          { ar: "الفحص الأساسي: تخطيط الدماغ الكهربائي (EEG) للكشف عن البؤر الكهربائية الصرعية.", en: "Primary Test: Electroencephalogram (EEG) to detect epileptiform discharges." },
+          { ar: "التصوير والتحاليل: الرنين المغناطيسي للدماغ (Brain MRI) لاستبعاد أي سبب عضوي، وفحص السكر والشوارد في الدم.", en: "Imaging & Labs: Brain MRI to rule out structural lesions, plus blood glucose and electrolytes." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "msk",
+    nameAr: "أمراض الجهاز العضلي الهيكلي والمفاصل",
+    nameEn: "Musculoskeletal & Joint System",
+    color: "#a855f7",
+    diseases: [
+      {
+        ar: "التهاب المفاصل المزمن (الروماتويدي / التنكسي)",
+        en: "Chronic Arthritis (Osteoarthritis / Rheumatoid)",
+        overview: [
+          { ar: "التهاب أو تآكل مزمن يصيب مفصلاً واحداً أو عدة مفاصل (مثل الركبتين واليدين)، ويسبب ألماً وتيبساً ومحدودية في الحركة.", en: "Chronic inflammation or degeneration affecting one or more joints (such as knees and hands), causing pain, stiffness, and limited mobility." }
+        ],
+        symptoms: [
+          { ar: "ألم مستمر أو متكرر في المفاصل يزداد مع الحركة (في التنكسي) أو يرافقه تيبس صباحي طويل (في الروماتويدي).", en: "Persistent joint pain worsened by movement (osteoarthritis) or accompanied by prolonged morning stiffness (rheumatoid)." },
+          { ar: "تورم ودفء حول المفصل المصاب، وصعوبة في ثني المفصل أو المشي وصعود الدرج.", en: "Joint swelling and warmth, with difficulty flexing the joint, walking, or climbing stairs." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية تماماً في الظروف الاعتيادية.", en: "Vital Signs: Completely normal in routine outpatient settings." }
+        ],
+        diagnosis: [
+          { ar: "التصوير: أشعة المفصل السينية (Joint X-ray) تُظهر تضيق المسافة المفصلية أو تآكل الغضروف.", en: "Imaging: Plain Joint X-ray showing joint space narrowing or cartilage loss." },
+          { ar: "تحاليل الدم: مؤشرات الالتهاب (ESR & CRP)، عامل الروماتويد (RF)، و Anti-CCP.", en: "Blood Tests: Inflammatory markers (ESR & CRP), Rheumatoid Factor (RF), and Anti-CCP." }
+        ]
+      },
+      {
+        ar: "الإنزلاق الغضروفي (انزلاق الفقرات)",
+        en: "Herniated Disc (Slipped Disc)",
+        overview: [
+          { ar: "بروز المادة الهلامية الداخلية للقرص الغضروفي بين الفقرات (أشهرها الفقرات القطنية L4-L5 / L5-S1) مما يضغط على جذور الأعصاب.", en: "Protrusion of the inner nucleus pulposus of an intervertebral disc (commonly lumbar L4-L5/L5-S1) compressing adjacent nerve roots." }
+        ],
+        symptoms: [
+          { ar: "ألم أسفل الظهر يمتد على مسار العصب الوركي إلى المؤخرة والفخذ والساق (Sciatica)، ويزداد عند الجلوس أو الانحناء.", en: "Lower back pain radiating along the sciatic nerve down the leg (sciatica), worsened by sitting or bending." },
+          { ar: "تنميل وخدر في الطرف المصاب، وأحياناً ضعف خفيف في حركة القدم أو اليد.", en: "Numbness/tingling in the affected limb and occasional mild muscle weakness." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية تماماً.", en: "Vital Signs: Completely normal." }
+        ],
+        diagnosis: [
+          { ar: "التصوير (المعيار الذهبي): الرنين المغناطيسي للعمود الفقري (Spine MRI)، والفحص السريري (Straight Leg Raise Test).", en: "Imaging & Exam: Spine MRI (gold standard) and positive Straight Leg Raise Test." }
+        ]
+      },
+      {
+        ar: "اضطراب المفصل الصدغي الفكي",
+        en: "Temporomandibular Joint (TMJ) Disorder",
+        overview: [
+          { ar: "خلل وظيفي أو إجهاد يصيب المفصل الذي يربط الفك السفلي بعظم الجمجمة أمام الأذن وعضلات المضغ.", en: "Dysfunction or strain affecting the TMJ in front of the ear and the muscles of mastication." }
+        ],
+        symptoms: [
+          { ar: "ألم أمام الأذن يزداد عند المضغ أو التثاؤب، وصوت طقطقة عند فتح وإغلاق الفم (Jaw clicking).", en: "Pre-auricular pain worsened by chewing or yawning, with audible jaw clicking/popping." },
+          { ar: "محدودية في فتح الفم بالكامل مع صداع جانبي في منطقة الصدغ.", en: "Limited jaw opening accompanied by temporal headache." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية بالكامل.", en: "Vital Signs: Completely normal." }
+        ],
+        diagnosis: [
+          { ar: "الفحص السريري للمفصل وعضلات المضغ، وأشعة البانوراما (OPG) أو رنين المفصل (TMJ MRI) عند اللزوم.", en: "Clinical palpation of TMJ, and OPG X-ray or TMJ MRI if needed." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "hem",
+    nameAr: "أمراض الدم والتخثر",
+    nameEn: "Hematology & Coagulation Disorders",
+    color: "#ef4444",
+    diseases: [
+      {
+        ar: "فقر الدم المنجلي",
+        en: "Sickle Cell Anemia",
+        overview: [
+          { ar: "اضطراب وراثي في هيموغلوبين الدم (HbS) يجعل كريات الدم الحمراء تأخذ شكل المنجل عند نقص الأكسجين، فتتكسر بسرعة وتُغلق الأوعية الدموية الدقيقة.", en: "Inherited hemoglobin disorder (HbS) causing red blood cells to sickle under low oxygen, leading to chronic hemolysis and microvascular occlusion." },
+          { ar: "شائع في منطقتنا، ويتميز بنوبات ألم حادة في العظام والمفاصل مع فقر دم مزمن.", en: "Common in our region, characterized by painful vaso-occlusive bone crises and chronic hemolytic anemia." }
+        ],
+        symptoms: [
+          { ar: "نوبات ألم حادة ومبرحة في العظام والظهر والمفاصل والبطن (Vaso-occlusive crises) تُثار بالبرد أو الجفاف أو العدوى.", en: "Acute severe pain crises in the bones, back, joints, and abdomen triggered by cold, dehydration, or infection." },
+          { ar: "شحوب وإرهاق مستمر بسبب فقر الدم المزمن، واصفرار خفيف في بياض العينين (Jaundice).", en: "Pallor and chronic fatigue from anemia, plus mild scleral icterus (jaundice)." }
+        ],
+        vitals: [
+          { ar: "النبض (HR): تسارع خفيف في النبض (Tachycardia) للتعويض عن فقر الدم؛ الحرارة طبيعية (إلا عند وجود عدوى مرافقة).", en: "Heart Rate: Mild compensatory tachycardia due to anemia; normal temperature unless infected." }
+        ],
+        diagnosis: [
+          { ar: "التحليل التأكيدي: الترحيل الكهربائي للهيموغلوبين (Hemoglobin Electrophoresis) يُظهر وجود HbS.", en: "Confirmatory Test: Hemoglobin Electrophoresis demonstrating HbS." },
+          { ar: "تحاليل الدم: صورة الدم (CBC: انخفاض Hb وارتفاع Reticulocytes)، مسحة الدم (Blood Film: خلايا منجلية)، وارتفاع Bilirubin غير المباشر.", en: "Blood Tests: CBC (low Hb, high reticulocytes), Blood Film (sickled RBCs), and elevated indirect bilirubin." }
+        ]
+      },
+      {
+        ar: "الثلاسيميا (فقر دم البحر المتوسط)",
+        en: "Thalassemia",
+        overview: [
+          { ar: "اضطراب دموي وراثي يقلل من قدرة الجسم على تصنيع سلاسل الهيموغلوبين الطبيعية (ألفا أو بيتا)، مما يؤدي إلى تكسر كريات الدم الحمراء وفقر دم مزمن.", en: "Inherited blood disorder reducing synthesis of normal alpha or beta globin chains, leading to ineffective erythropoiesis and chronic anemia." },
+          { ar: "تتراوح شدتها من حاملة للصفة بدون أعراض (Thalassemia Minor) إلى الكبرى (Major) التي تحتاج نقل دم دوري.", en: "Ranges from asymptomatic trait (Thalassemia Minor) to severe Thalassemia Major requiring regular transfusions." }
+        ],
+        symptoms: [
+          { ar: "شحوب الجلد والملتحمة، إرهاق وضعف عام، وضيق نفس عند المجهود.", en: "Pallor of skin and conjunctiva, generalized fatigue, and exertional dyspnea." },
+          { ar: "في الحالات المتوسطة والكبرى: تضخم الطحال والكبد (Hepatosplenomegaly)، اصفرار خفيف، وتأخر النمو وتغير ملامح عظام الوجه.", en: "In moderate/major forms: Hepatosplenomegaly, mild jaundice, growth delay, and facial bone prominence." }
+        ],
+        vitals: [
+          { ar: "النبض (HR): تسارع خفيف في ضربات القلب في الحالات غير المنقول لها دم؛ بقية العلامات طبيعية.", en: "Heart Rate: Mild compensatory tachycardia when anemic; other vitals are normal." }
+        ],
+        diagnosis: [
+          { ar: "التحليل التأكيدي: الترحيل الكهربائي للهيموغلوبين (Hb Electrophoresis) يُظهر ارتفاع HbA2 و HbF.", en: "Confirmatory Test: Hemoglobin Electrophoresis showing elevated HbA2 and HbF." },
+          { ar: "تحاليل الدم: صورة الدم (CBC: انخفاض Hb مع صغر حجم الكريات Microcytic hypochromic)، ومخزون الحديد (Serum Ferritin).", en: "Blood Tests: CBC (microcytic hypochromic anemia) and Serum Ferritin." }
+        ]
+      },
+      {
+        ar: "الهيموفيليا (ناعور الدم)",
+        en: "Hemophilia",
+        overview: [
+          { ar: "اضطراب نزفي وراثي (مرتبط بالكروموسوم X يصيب الذكور غالباً) ينتج عن نقص أو غياب أحد عوامل تخثر الدم (عامل 8 في هيموفيليا A، أو عامل 9 في هيموفيليا B).", en: "Inherited X-linked bleeding disorder (affecting males predominantly) caused by deficiency of clotting Factor VIII (Hemophilia A) or Factor IX (Hemophilia B)." }
+        ],
+        symptoms: [
+          { ar: "نزف مطوّل وغزير بعد الجروح البسيطة أو خلع الأسنان أو العمليات الجراحية.", en: "Prolonged, excessive bleeding after minor cuts, dental extractions, or surgery." },
+          { ar: "نزف تلقائي داخل المفاصل الكبيرة كالركبة والكاحل (Hemarthrosis) يسبب تورماً وألماً، وكدمات كبيرة تحت الجلد.", en: "Spontaneous bleeding into large joints like knees and ankles (hemarthrosis) causing painful swelling, and large hematomas." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية في الظروف الاعتيادية؛ يتسارع النبض وينخفض الضغط فقط عند النزف الحاد الغزير.", en: "Vital Signs: Normal in routine states; tachycardia and hypotension occur only during acute severe hemorrhage." }
+        ],
+        diagnosis: [
+          { ar: "تحاليل التخثر (Coagulation Profile): تطاول واضح في زمن الثرومبوبلاستين الجزئي (Prolonged aPTT) مع بقاء PT وعدد الصفائح طبيعيين.", en: "Coagulation Profile: Markedly prolonged aPTT with normal PT and normal platelet count." },
+          { ar: "التحليل التأكيدي: قياس مستوى عوامل التخثر (Factor VIII & Factor IX Assay).", en: "Confirmatory Assay: Specific Factor VIII and Factor IX activity levels." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "inf",
+    nameAr: "الأمراض المعدية والاستقلابية والعامة",
+    nameEn: "Infectious, Metabolic & Systemic Conditions",
+    color: "#ec4899",
+    diseases: [
+      {
+        ar: "حمى التيفوئيد",
+        en: "Typhoid Fever",
+        overview: [
+          { ar: "عدوى بكتيرية جهازية تسببها بكتيريا السالمونيلا التيفية (Salmonella Typhi)، تنتقل عبر تناول طعام أو ماء ملوث.", en: "Systemic bacterial infection caused by Salmonella Typhi, transmitted via contaminated food or water." }
+        ],
+        symptoms: [
+          { ar: "حمى ترتفع تدريجياً يوماً بعد يوم وتستمر عالية (Step-ladder fever) مع صداع أمامي مستمر وخمول شديد.", en: "Sustained progressive fever (step-ladder pattern), persistent frontal headache, and profound malaise." },
+          { ar: "فقدان الشهية، ألم خفيف في البطن مع إمساك أو إسهال، وأحياناً بقع وردية على الجذع (Rose spots).", en: "Anorexia, mild abdominal pain with constipation or diarrhea, and occasional rose spots." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: حرارة مرتفعة (39–40°C) مع بطء نسبي في النبض مقارنة بالحرارة (Relative Bradycardia).", en: "Temp & HR: High fever (39–40°C) with relative bradycardia." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل: زرع الدم (Blood Culture) في الأسبوع الأول، زرع البراز، CBC (انخفاض أو ثبات WBC)، واختبار TyphiDot / Widal.", en: "Labs: Blood Culture (week 1), Stool Culture, CBC, and TyphiDot / Widal test." }
+        ]
+      },
+      {
+        ar: "الحمى المالطية (البروسيلا)",
+        en: "Brucellosis (Malta Fever)",
+        overview: [
+          { ar: "عدوى بكتيرية شائعة تنتقل من الحيوانات (الأغنام والأبقار) إلى الإنسان عبر شرب الحليب غير المبستر أو منتجات الألبان الطازجة أو التعامل المباشر مع المواشي.", en: "Common zoonotic bacterial infection transmitted via unpasteurized dairy products or direct contact with infected livestock." },
+          { ar: "تُعرف بالحمى المتموجة لأن حرارتها ترتفع وتنخفض على مدى أسابيع وتسبب آلاماً مفصلية وعرقاً غزيراً.", en: "Known as undulant fever due to fluctuating fevers over weeks, accompanied by joint pain and profuse sweating." }
+        ],
+        symptoms: [
+          { ar: "حمى متموجة (Undulant fever) ترتفع وتنخفض مع قشعريرة وتعرق ليلي غزير ذي رائحة مميزة (تشبه القش الرطب).", en: "Undulant fever with chills and drenching night sweats with a characteristic musty/wet-hay odor." },
+          { ar: "آلام منتشرة في المفاصل الكبيرة وأسفل الظهر والعضلات (Arthralgia & Myalgia) وإرهاق عام.", en: "Widespread joint pain (especially sacroiliac/large joints), myalgia, and generalized fatigue." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع متذبذب في الحرارة (38–39.5°C) مع تسارع خفيف في النبض.", en: "Temp & HR: Fluctuating fever (38–39.5°C) with mild tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل المصلية والزرع: اختبار الروز بنغال السريع (Rose Bengal Test)، اختبار التراص (Wright / Brucella Agglutination Test)، وزرع الدم.", en: "Serology & Culture: Rose Bengal screening test, Standard Tube Agglutination (Wright) test, and Blood Culture." }
+        ]
+      },
+      {
+        ar: "الحصبة",
+        en: "Measles (Rubeola)",
+        overview: [
+          { ar: "عدوى فيروسية شديدة العدوى تنتقل عبر الرذاذ التنفسي، تصيب الأطفال غير الملقحين غالباً وتسبب حمى وطفحاً جلدياً مميزاً.", en: "Highly contagious viral illness transmitted via respiratory droplets, mainly affecting unvaccinated individuals with fever and a characteristic rash." }
+        ],
+        symptoms: [
+          { ar: "المرحلة الأولية (3 Cs): سعال جاف (Cough)، سيلان الأنف (Coryza)، واحمرار وتدميع العينين (Conjunctivitis) مع حمى عالية.", en: "Prodrome (3 Cs): Cough, coryza (runny nose), and conjunctivitis with high fever." },
+          { ar: "ظهور بقع بيضاء صغيرة داخل الفم مقابل الأضراس (Koplik spots)، يليها طفح جلدي أحمر بقعي يبدأ من الوجه وخلف الأذنين وينتشر لأسفل الجسم.", en: "Koplik spots on the buccal mucosa, followed by a maculopapular rash starting on the face/hairline and spreading downward." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: حمى مرتفعة (39–40°C) مع تسارع النبض المتناسب مع الحرارة.", en: "Temp & HR: High fever (39–40°C) with fever-proportional tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "التشخيص السريري والمخبري: الصورة السريرية وبقع كوبليك، ويؤكد بتحليل الأجسام المضادة في الدم (Measles IgM Antibody).", en: "Clinical & Lab: Clinical presentation + Koplik spots, confirmed by serum Measles-specific IgM." }
+        ]
+      },
+      {
+        ar: "الحصبة الألمانية",
+        en: "Rubella (German Measles)",
+        overview: [
+          { ar: "عدوى فيروسية خفيفة ومحدودة ذاتياً تسبب طفحاً جلدياً وتضخماً في العقد اللمفاوية، وتكمن خطورتها الرئيسية في إصابة المرأة الحامل لما تسببه من تشوهات جنينية.", en: "Mild, self-limiting viral infection causing a rash and lymphadenopathy; its major clinical significance is congenital rubella syndrome if contracted during pregnancy." }
+        ],
+        symptoms: [
+          { ar: "طفح جلدي وردي خفيف يبدأ على الوجه وينتشر سريعاً للجسم ويختفي خلال 3 أيام.", en: "Mild pink maculopapular rash starting on the face, spreading rapidly, and fading within 3 days." },
+          { ar: "تضخم مؤلم مميز في العقد اللمفاوية خلف الأذنين ومؤخرة الرقبة، وحمى خفيفة وألم بسيط في المفاصل.", en: "Characteristic tender posterior auricular and suboccipital lymphadenopathy, low-grade fever, and mild arthralgia." }
+        ],
+        vitals: [
+          { ar: "الحرارة: طبيعية أو ارتفاع طفيف جداً (Low-grade fever < 38.2°C)؛ بقية العلامات طبيعية.", en: "Temperature: Normal or mild low-grade fever (< 38.2°C); other vitals normal." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل المصلية: فحص الأجسام المضادة في الدم (Rubella IgM & IgG Antibodies).", en: "Serology: Serum Rubella IgM and IgG antibody testing." }
+        ]
+      },
+      {
+        ar: "النكاف (أبو كعب)",
+        en: "Mumps",
+        overview: [
+          { ar: "عدوى فيروسية حادة تصيب الغدد اللعابية، وخاصة الغدة النكفية (Parotid gland) الواقعة أمام وأسفل الأذن.", en: "Acute viral infection primarily affecting the salivary glands, especially the parotid glands in front of and below the ears." }
+        ],
+        symptoms: [
+          { ar: "تورم وألم واضح في إحدى الغدتين النكفيتين أو كلتيهما (أسفل الأذن وزاوية الفك) يزداد عند المضغ أو تناول الأطعمة الحامضة.", en: "Painful unilateral or bilateral parotid gland swelling (angle of the jaw) worsened by chewing or sour foods." },
+          { ar: "حمى متوسطة، صداع، آلام في العضلات، وفقدان الشهية.", en: "Moderate fever, headache, myalgia, and anorexia." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: ارتفاع متوسط في الحرارة (38–39°C) وتسارع خفيف في النبض.", en: "Temp & HR: Moderate fever (38–39°C) and mild tachycardia." }
+        ],
+        diagnosis: [
+          { ar: "التشخيص الأساسي: سريري من شكل التورم المميز، ويؤكد بتحليل الدم (Mumps IgM) وارتفاع إنزيم الأميليز (Serum Amylase).", en: "Clinical & Lab: Characteristic parotid swelling, confirmed by Mumps IgM serology and elevated serum amylase." }
+        ]
+      },
+      {
+        ar: "جدري الماء (أبو خريان)",
+        en: "Chickenpox (Varicella)",
+        overview: [
+          { ar: "عدوى فيروسية شديدة العدوى يسببها فيروس Varicella-Zoster، شائعة لدى الأطفال وتتميز بطفح جلدي حويصلي مثير للحكة يظهر على دفعات.", en: "Highly contagious viral infection caused by Varicella-Zoster Virus (VZV), common in children, featuring an intensely itchy vesicular rash appearing in crops." }
+        ],
+        symptoms: [
+          { ar: "طفح جلدي مثير للحكة الشديدة يمر بمراحل متتالية (بقع حمراء ثم حويصلات مائية تشبه قطرات الندى ثم قشور) وتوجد جميع المراحل معاً في نفس الوقت.", en: "Intensely pruritic rash progressing through macules, 'dewdrop' vesicles, and crusts, with lesions in different stages present simultaneously." },
+          { ar: "حمى خفيفة إلى متوسطة، تعب عام، وفقدان الشهية قبل أو مع ظهور الطفح.", en: "Low-to-moderate fever, malaise, and loss of appetite." }
+        ],
+        vitals: [
+          { ar: "الحرارة: ارتفاع خفيف إلى متوسط (37.8–38.8°C)؛ بقية العلامات الحيوية طبيعية.", en: "Temperature: Mild-to-moderate fever (37.8–38.8°C); other vitals normal." }
+        ],
+        diagnosis: [
+          { ar: "التشخيص الأساسي: سريري بالكامل من شكل الطفح الحويصلي وتوزعه على الجذع والوجه.", en: "Primary Diagnosis: Clinical diagnosis based on characteristic pleomorphic vesicular rash." }
+        ]
+      },
+      {
+        ar: "شلل الأطفال",
+        en: "Poliomyelitis (Polio)",
+        overview: [
+          { ar: "عدوى فيروسية معوية شديدة العدوى تصيب الجهاز العصبي (الخلايا الحركية في الحبل الشوكي) وقد تؤدي إلى شلل رخو غير متماثل، وتمت السيطرة عليها عالمياً بفضل اللقاحات.", en: "Highly infectious enterovirus infection affecting spinal anterior horn motor neurons, potentially causing asymmetric flaccid paralysis; largely eradicated via vaccination." }
+        ],
+        symptoms: [
+          { ar: "في البداية: حمى، صداع، تقيؤ، ألم في الحلق، وتيبس في الرقبة والظهر.", en: "Initial phase: Fever, headache, vomiting, sore throat, and neck/back stiffness." },
+          { ar: "في الحالات الشللية: ضعف مفاجئ وشلل رخو غير متماثل في الأطراف (غالباً الساقين) مع غياب المنعكسات العصبية وبقاء الإحساس سليماً.", en: "Paralytic phase: Sudden asymmetric flaccid weakness/paralysis (usually lower limbs) with absent deep tendon reflexes and intact sensation." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: حمى في المرحلة الحادة؛ التنفس قد يتأثر إذا أصاب الفيروس عضلات التنفس.", en: "Temp & RR: Fever in acute stage; respiratory rate/effort impaired if bulbar/respiratory muscles are involved." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل: عزل الفيروس وفحص PCR من عينة البراز (Stool Viral Culture / PCR) وفحص السائل الشوكي (CSF Analysis).", en: "Labs: Stool viral isolation/PCR and Cerebrospinal Fluid (CSF) analysis." }
+        ]
+      },
+      {
+        ar: "داء السكري",
+        en: "Diabetes Mellitus (DM)",
+        overview: [
+          { ar: "اضطراب استقلابي مزمن يؤدي إلى ارتفاع مستوى السكر في الدم بسبب نقص إفراز الإنسولين (النوع الأول) أو مقاومة خلايا الجسم له (النوع الثاني وهو الأكثر شيوعاً).", en: "Chronic metabolic disorder causing hyperglycemia due to deficient insulin secretion (Type 1) or insulin resistance (Type 2)." }
+        ],
+        symptoms: [
+          { ar: "العطش الشديد المستمر (Polydipsia)، كثرة التبول خاصة ليلاً (Polyuria)، وزيادة الجوع (Polyphagia) مع فقدان الوزن.", en: "Polydipsia, polyuria (especially nocturia), polyphagia, and unexplained weight loss." },
+          { ar: "إرهاق عام، تشوش الرؤية، وبطء التئام الجروح البسيطة.", en: "Fatigue, blurred vision, and slow wound healing." }
+        ],
+        vitals: [
+          { ar: "العلامات الحيوية: طبيعية ومستقرة تماماً في الظروف الاعتيادية.", en: "Vital Signs: Completely normal and stable in routine settings." }
+        ],
+        diagnosis: [
+          { ar: "تحاليل الدم: السكر التراكمي (HbA1c ≥ 6.5%)، سكر الدم الصائم (FBS ≥ 126 mg/dL)، أو العشوائي (RBS ≥ 200 mg/dL) مع الأعراض.", en: "Blood Tests: HbA1c ≥ 6.5%, FBS ≥ 126 mg/dL, or RBS ≥ 200 mg/dL with symptoms." }
+        ]
+      },
+      {
+        ar: "الغرغرينا (موت الأنسجة)",
+        en: "Gangrene",
+        overview: [
+          { ar: "موت وتحلل أنسجة الجسم (غالباً في أصابع القدمين أو الأطراف السفلية) نتيجة انقطاع التروية الدموية المزمن أو عدوى بكتيرية شديدة، وترتبط غالباً بمرضى السكري.", en: "Tissue necrosis (most commonly toes or lower limbs) due to critical ischemia or severe bacterial infection, strongly linked to diabetes." }
+        ],
+        symptoms: [
+          { ar: "تغير لون الجلد إلى الأزرق الداكن أو الأسود، برودة الطرف، فقدان الإحساس، وإفرازات كريهة الرائحة.", en: "Dusky blue or black skin discoloration, coldness, numbness, and foul-smelling discharge." }
+        ],
+        vitals: [
+          { ar: "الحرارة والنبض: طبيعية في الغرغرينا الجافة؛ ترتفع الحرارة ويتسارع النبض في الغرغرينا الرطبة الملتهبة.", en: "Temp & HR: Normal in dry gangrene; fever and tachycardia in infected wet gangrene." }
+        ],
+        diagnosis: [
+          { ar: "الفحوصات: سونار الدوبلر للشرايين (Arterial Doppler)، سكر الدم والتراكمي (HbA1c)، CBC، CRP، وزرع مسحة الجرح.", en: "Workup: Arterial Doppler Ultrasound, FBS & HbA1c, CBC, CRP, and wound swab culture." }
+        ]
+      },
+      {
+        ar: "الجفاف (نقص سوائل الجسم)",
+        en: "Dehydration",
+        overview: [
+          { ar: "نقص في إجمالي الماء والأملاح داخل الجسم يحدث عندما تفوق السوائل المفقودة (الإسهال، القيء، التعرق، قلة الشرب) الكمية المتناولة.", en: "Depletion of total body water and electrolytes when fluid losses exceed intake." }
+        ],
+        symptoms: [
+          { ar: "عطش شديد، جفاف الفم واللسان، قلة البول وتغير لونه للأصفر الداكن، ودوخة عند الوقوف.", en: "Intense thirst, dry mouth/tongue, dark concentrated oliguria, and postural dizziness." }
+        ],
+        vitals: [
+          { ar: "النبض والضغط: تسارع خفيف إلى متوسط في النبض، وانخفاض الضغط (خاصة عند الوقوف) في الجفاف المتوسط والشديد.", en: "HR & BP: Mild-to-moderate tachycardia and orthostatic or supine hypotension in moderate/severe cases." }
+        ],
+        diagnosis: [
+          { ar: "التحاليل: وظائف الكلى (ارتفاع نسبة BUN/Creatinine)، الشوارد (Na, K)، وتحليل البول (ارتفاع Specific Gravity).", en: "Labs: RFT (elevated BUN/Creatinine ratio), Serum Electrolytes, and Urinalysis (high Specific Gravity)." }
+        ]
+      }
+    ]
+  }
+];
+
+
+let currentModalState = { sysId: null, dIdx: null, tabKey: 'overview', lang: 'both' };
+
+const tabMeta = {
+  overview:  { ar: 'شرح عن المرض', en: 'Disease Overview', color: '#0f766e' },
+  symptoms:  { ar: 'الأعراض الشائعة', en: 'Common Symptoms', color: '#d9485f' },
+  vitals:    { ar: 'العلامات الحيوية', en: 'Vital Signs', color: '#0284c7' },
+  diagnosis: { ar: 'التشخيص والتحاليل', en: 'Diagnosis & Labs', color: '#c97a16' }
+};
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+
+  systemsData.forEach(sys => {
+    const sysCard = document.createElement('div');
+    sysCard.className = 'system-card open';
+    sysCard.style.setProperty('--sys-color', sys.color);
+
+    const diseasesHtml = sys.diseases.map((d, dIdx) => {
+      const searchBlob = [
+        d.ar, d.en,
+        ...d.overview.map(x => x.ar + ' ' + x.en),
+        ...d.symptoms.map(x => x.ar + ' ' + x.en),
+        ...d.vitals.map(x => x.ar + ' ' + x.en),
+        ...d.diagnosis.map(x => x.ar + ' ' + x.en)
+      ].join(' ').toLowerCase();
+
+      return `
+        <div class="disease-node" id="dis-${sys.id}-${dIdx}" data-search="${searchBlob}">
+          <button class="disease-btn" onclick="toggleDisease('${sys.id}-${dIdx}')">
+            <div>
+              <span class="dis-ar">${d.ar}</span>
+              <span class="dis-en">${d.en}</span>
+            </div>
+            <span class="dis-arrow">◀</span>
+          </button>
+          <div class="branch-options">
+            <button class="opt-btn" onclick="openModal('${sys.id}', ${dIdx}, 'overview')">
+              <span>شرح عن المرض</span>
+              <span class="en-sub">Overview</span>
+            </button>
+            <button class="opt-btn" onclick="openModal('${sys.id}', ${dIdx}, 'symptoms')">
+              <span>الأعراض</span>
+              <span class="en-sub">Symptoms</span>
+            </button>
+            <button class="opt-btn" onclick="openModal('${sys.id}', ${dIdx}, 'vitals')">
+              <span>العلامات الحيوية</span>
+              <span class="en-sub">Vital Signs</span>
+            </button>
+            <button class="opt-btn" onclick="openModal('${sys.id}', ${dIdx}, 'diagnosis')">
+              <span>التشخيص والتحاليل</span>
+              <span class="en-sub">Diagnosis & Labs</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    sysCard.innerHTML = `
+      <div class="system-header" onclick="this.parentElement.classList.toggle('open')">
+        <div>
+          <div class="sys-name-ar">${sys.nameAr}</div>
+          <div class="sys-name-en">${sys.nameEn}</div>
+        </div>
+        <div class="sys-meta">
+          <span class="count-pill">${sys.diseases.length} أمراض</span>
+          <span class="chevron">▼</span>
+        </div>
+      </div>
+      <div class="diseases-list">
+        ${diseasesHtml}
+      </div>
+    `;
+    app.appendChild(sysCard);
+  });
+}
+
+function toggleDisease(uid) {
+  document.getElementById('dis-' + uid).classList.toggle('active');
+}
+
+function openModal(sysId, dIdx, tabKey) {
+  currentModalState.sysId = sysId;
+  currentModalState.dIdx = dIdx;
+  currentModalState.tabKey = tabKey;
+  renderModalContent();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function closeModalOnBg(e) {
+  if (e.target.id === 'modalOverlay') closeModal();
+}
+
+function setLangMode(mode) {
+  currentModalState.lang = mode;
+  document.getElementById('btnLangBoth').classList.toggle('active', mode === 'both');
+  document.getElementById('btnLangAr').classList.toggle('active', mode === 'ar');
+  document.getElementById('btnLangEn').classList.toggle('active', mode === 'en');
+  renderModalContent();
+}
+
+function renderModalContent() {
+  const { sysId, dIdx, tabKey, lang } = currentModalState;
+  const sys = systemsData.find(s => s.id === sysId);
+  const disease = sys.diseases[dIdx];
+  const meta = tabMeta[tabKey];
+
+  const badge = document.getElementById('modalBadge');
+  badge.textContent = `${meta.ar} • ${meta.en}`;
+  badge.style.background = meta.color;
+
+  document.getElementById('modalTitleAr').textContent = disease.ar;
+  document.getElementById('modalTitleEn').textContent = disease.en;
+
+  const items = disease[tabKey];
+  const listHtml = items.map(item => {
+    let html = '<li>';
+    if (lang === 'both' || lang === 'ar') {
+      html += `<div class="ar-block">${item.ar}</div>`;
+    }
+    if (lang === 'both' || lang === 'en') {
+      html += `<div class="en-block">${item.en}</div>`;
+    }
+    html += '</li>';
+    return html;
+  }).join('');
+
+  document.getElementById('modalBody').innerHTML = `<ul>${listHtml}</ul>`;
+
+  const footer = document.getElementById('modalFooter');
+  footer.innerHTML = Object.keys(tabMeta).map(k => `
+    <button class="foot-tab ${k === tabKey ? 'current' : ''}" onclick="openModal('${sysId}', ${dIdx}, '${k}')">
+      ${tabMeta[k].ar}
+    </button>
+  `).join('');
+}
+
+function toggleAllSystems(openState) {
+  document.querySelectorAll('.system-card').forEach(card => {
+    card.classList.toggle('open', openState);
+  });
+}
+
+function filterData() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  document.querySelectorAll('.system-card').forEach(card => {
+    let visibleCount = 0;
+    card.querySelectorAll('.disease-node').forEach(node => {
+      const match = !q || node.dataset.search.includes(q);
+      node.style.display = match ? 'flex' : 'none';
+      if (match) {
+        visibleCount++;
+        if (q) node.classList.add('active');
+      } else {
+        node.classList.remove('active');
+      }
+    });
+    card.style.display = visibleCount > 0 ? 'block' : 'none';
+    if (visibleCount > 0 && q) card.classList.add('open');
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+render();
+</script>
+</body>
+</html>
